@@ -1,0 +1,3 @@
+CRON_TZ=America/New_York
+
+* * * * * root log echo "1min beacon"

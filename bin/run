@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+service busybox-syslogd start > /dev/null
+service cronie start > /dev/null
+logread -f

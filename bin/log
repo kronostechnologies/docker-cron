@@ -1,0 +1,5 @@
+#!/bin/bash
+# prefix given command with UUID
+UUID="$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)"
+echo LOG: "'$@'" | logger -t $UUID
+"$@" 2>&1 | logger -t $UUID
