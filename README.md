@@ -2,7 +2,9 @@
 
 #### Build
 
-`docker build -t docker-cron .`
+```Shell
+docker build -t docker-cron .
+```
 
 #### Usage
 
