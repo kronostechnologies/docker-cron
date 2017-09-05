@@ -11,6 +11,7 @@ RUN apt-get update \
 && apt-get install -y --no-install-recommends \
 cronie \
 busybox-syslogd \
+&& apt-mark hold cron rsyslog \
 && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /etc/cron.*/*
 
 # cronie
