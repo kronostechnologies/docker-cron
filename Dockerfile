@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY ./bin/ /usr/bin/
 
-RUN docker-cron-setup
+RUN docker-cron setup
 
-CMD docker-cron-run
+CMD docker-cron run
 

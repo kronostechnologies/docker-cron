@@ -1,0 +1,94 @@
+#!/bin/bash
+set -e
+
+function _log {
+  echo "cronlinker: $@"
+}
+
+setup () {
+  export ENV DEBIAN_FRONTEND=noninteractive
+
+  # Install
+  sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list
+  echo "deb http://deb.debian.org/debian/ experimental main" > /etc/apt/sources.list.d/experimental.list
+
+  apt-get update
+  apt-get install -y --no-install-recommends cronie busybox-syslogd
+  apt-get clean
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /etc/cron.*/*
+
+  # cronie
+  # - do not send emails (-m off)
+  # - redirect stdout to syslog (-s)
+  sed -i 's|DAEMON_ARGS=""|DAEMON_ARGS="-m off -s"|' /etc/default/cronie
+
+  # busybox-syslogd
+  # - do not save log to file (-O /dev/null)
+  sed -i 's|SYSLOG_OPTS="-C128"|SYSLOG_OPTS="-C128 -O /dev/null"|' /etc/default/busybox-syslogd
+
+  touch /etc/default/locale
+
+}
+
+link () {
+  if [ ! -z "${CRONLINKER_FILE}" ] && [ -f "${CRONLINKER_FILE}" ]
+  then
+    _log "CRONLINKER_FILE: defined as ${CRONLINKER_FILE}"
+  else
+    if [ -z "${CRONLINKER_PATH}" ];
+    then
+      _log "CRONLINKER_PATH: undefined variable, using default (/jobs)"
+    else
+      _log "CRONLINKER_PATH: defined as ${CRONLINKER_PATH}"
+    fi
+    CRONLINKER_PATH="${CRONLINKER_PATH:-/jobs}"
+
+    if [ -z "${CRONLINKER_ENVIRONMENT}" ]
+    then
+      _log "CRONLINKER_ENVIRONMENT: undefined variable"
+    else
+      _log "CRONLINKER_ENVIRONMENT: defined as ${CRONLINKER_ENVIRONMENT}"
+    fi
+
+    if [ -z "${CRONLINKER_SITE}" ]
+    then
+      _log "CRONLINKER_SITE: undefined variable"
+    else
+      _log "CRONLINKER_SITE: defined as ${CRONLINKER_SITE}"
+    fi
+
+    cronfile="${CRONLINKER_PATH}/${CRONLINKER_ENVIRONMENT}/${CRONLINKER_SITE}"
+    if [ -f $cronfile ];
+    then
+      _log "CRONLINKER_FILE: defined as '$cronfile'"
+      CRONLINKER_FILE="${CRONLINKER_FILE:-$cronfile}"
+    else
+      _log "CRONLINKER_FILE: not found '${cronfile}'"
+    fi
+  fi
+
+  if [ ! -z "${CRONLINKER_FILE}" ]
+  then
+    _log "success: linked '${CRONLINKER_FILE}' to /etc/cron.d/jobs"
+    ln -s "${CRONLINKER_FILE}" /etc/cron.d/jobs
+  else
+    _log "warning: not linking any cronjob to /etc/cron.d/jobs"
+  fi
+}
+
+run () {
+  link
+  service busybox-syslogd start > /dev/null
+  service cronie start > /dev/null
+  logread -f
+}
+
+if [ "$(type -t ${@})" == 'function' ]
+then
+  "$@"
+else
+  echo Unknown arg given
+  echo "Available functions:"
+  compgen -A function  | grep -v '^_.*'
+fi
+
