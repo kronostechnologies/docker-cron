@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+docker-cron-linker
+
 service busybox-syslogd start > /dev/null
 service cronie start > /dev/null
 logread -f
