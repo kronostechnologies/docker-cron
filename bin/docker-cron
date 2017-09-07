@@ -70,7 +70,7 @@ link () {
   if [ ! -z "${CRONLINKER_FILE}" ]
   then
     _log "success: linked '${CRONLINKER_FILE}' to /etc/cron.d/jobs"
-    ln -s "${CRONLINKER_FILE}" /etc/cron.d/jobs
+    ln -f -s "${CRONLINKER_FILE}" /etc/cron.d/jobs
   else
     _log "warning: not linking any cronjob to /etc/cron.d/jobs"
   fi
