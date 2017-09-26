@@ -30,7 +30,14 @@ docker build -f Dockerfile-example -t cron-example .
 docker run --rm -it cron-example
 ```
 
+Integrate cron in another image
 
+```Dockerfile
+ADD https://github.com/kronostechnologies/docker-cron/releases/download/latest/docker-cron /usr/local/bin/docker-cron
+RUN chmod +x /usr/local/bin/docker-cron && docker-cron setup
+
+CMD [ "docker-cron run" ]
+```
 
 #### Debug
 
