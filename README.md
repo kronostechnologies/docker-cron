@@ -12,8 +12,10 @@ docker build -t docker-cron .
 
 ```Shell
 docker run --rm \
--v $(pwd)/sample.cron:/etc/cron.d/sample.cron \
--it docker-cron
+-e CRONLINKER_FILE=/cron/sample.cron
+-v $(pwd)/sample.cron:/cron/sample.cron \
+-it docker-cron \
+/bin/bash -c "docker-cron link && docker-cron run"
 ```
 
 ###### Create a docker image to run cronjobs
@@ -21,7 +23,9 @@ docker run --rm \
 ```Dockerfile
 cat <<EOF > Dockerfile-example
 FROM docker-cron
-COPY ./sample.cron /etc/cron.d/sample.cron
+ENV CRONLINKER_FILE=/cron/sample.cron
+COPY ./sample.cron /cron/sample.cron
+CMD /bin/bash -c "docker-cron link && docker-cron run"
 EOF
 ```
 
