@@ -6,17 +6,6 @@ function _log {
 }
 
 setup () {
-  export ENV DEBIAN_FRONTEND=noninteractive
-
-  # Install
-  sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list
-  echo "deb http://deb.debian.org/debian/ experimental main" > /etc/apt/sources.list.d/experimental.list
-
-  apt-get update
-  apt-get install -y --no-install-recommends cronie busybox-syslogd
-  apt-get clean
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-
   # cronie
   # - do not send emails (-m off)
   # - redirect stdout to syslog (-s)
@@ -28,12 +17,7 @@ setup () {
   # - disable cron.{hourly,daily,weekly}
   echo '' > /etc/crontab
 
-  # busybox-syslogd
-  # - do not save log to file (-O /dev/null)
-  sed -i 's|SYSLOG_OPTS="-C128"|SYSLOG_OPTS="-C128 -O /dev/null"|' /etc/default/busybox-syslogd
-
   touch /etc/default/locale
-
 }
 
 link () {
@@ -84,9 +68,7 @@ link () {
 }
 
 run () {
-  service busybox-syslogd start > /dev/null
   service cronie start > /dev/null
-  logread -f
 }
 
 if [ "$(type -t ${@})" == 'function' ]
