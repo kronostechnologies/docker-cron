@@ -15,7 +15,7 @@ docker run --rm \
 -e CRONLINKER_FILE=/cron/sample.cron
 -v $(pwd)/sample.cron:/cron/sample.cron \
 -it docker-cron \
-/bin/bash -c "docker-cron link && docker-cron run"
+/bin/bash -c "docker-cron link && docker-cron run && service busybox-syslogd start && logread -f"
 ```
 
 ###### Create a docker image to run cronjobs
@@ -25,7 +25,7 @@ cat <<EOF > Dockerfile-example
 FROM docker-cron
 ENV CRONLINKER_FILE=/cron/sample.cron
 COPY ./sample.cron /cron/sample.cron
-CMD /bin/bash -c "docker-cron link && docker-cron run"
+CMD /bin/bash -c "docker-cron link && docker-cron run && service busybox-syslogd start && logread -f"
 EOF
 ```
 
@@ -50,7 +50,7 @@ $ docker run --rm \
 -v $(pwd)/jobs/:/jobs/:ro \
 -e CRONLINKER_ENVIRONMENT=dev \
 -e CRONLINKER_SITE=docker \
--it docker-cron sh -c "docker-cron link && docker-cron run"
+-it docker-cron sh -c "docker-cron link && docker-cron run && service busybox-syslogd start && logread -f"
 ```
 outputs
 ```
